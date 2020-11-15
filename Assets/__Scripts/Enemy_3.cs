@@ -9,9 +9,25 @@ public class Enemy_3 : Enemy
     public Vector3[] points;
     public float birthTime;
     public float lifeTime = 10;
+    public float lastShot; // Time last shot was fired
+    public Weapon[] weapons;
+    public delegate void WeaponFireDelegate();
+    public WeaponFireDelegate fireDelegate;
+    static public Enemy_3 S;
     // Again, Start works well because it is not used by Enemy
+    void Awake()
+    {
+        S = this;
+    }
+
     void Start()
     {
+        foreach (Weapon i in weapons)
+        {
+            i.SetType(WeaponType.enemyBlaster);
+           
+        }
+            
         points = new Vector3[3]; // Initialize points
                                  // The start position has already been set by Main.SpawnEnemy()
         points[0] = pos;
@@ -31,9 +47,14 @@ public class Enemy_3 : Enemy
         points[2] = v;
         // Set the birthTime to the current time
         birthTime = Time.time;
+        
     }
+
+    
     public override void Move()
     {
+        if (fireDelegate != null)
+            fireDelegate();
         // Bezier curves work based on a u value between 0 & 1
         float u = (Time.time - birthTime) / lifeTime;
         if (u > 1)

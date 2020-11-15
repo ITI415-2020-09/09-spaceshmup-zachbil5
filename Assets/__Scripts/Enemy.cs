@@ -84,24 +84,28 @@ public class Enemy : MonoBehaviour
     }
     void OnCollisionEnter(Collision coll)
     {
+       
         GameObject other = coll.gameObject;
         switch (other.tag)
         {
             case "ProjectileHero":
+                print("Enemy Hit");
                 Projectile p = other.GetComponent<Projectile>();
                 // Enemies don't take damage unless they're onscreen
                 // This stops the player from shooting them before they are visible
                 bounds.center = transform.position + boundsCenterOffset;
-                if (bounds.extents == Vector3.zero ||
+                /*if (bounds.extents == Vector3.zero ||
                 Utils.ScreenBoundsCheck(bounds, BoundsTest.offScreen) != Vector3.zero)
                 {
                     Destroy(other);
+                    print("out of bounds");
                     break;
-                }
+                }*/ //out of bounds is broken for some reason
                 // Hurt this Enemy
                 ShowDamage();
                 // Get the damage amount from the Projectile.type & Main.W_DEFS
                 health -= Main.W_DEFS[p.type].damageOnHit;
+                print("" + health);
                 if (health <= 0)
                 {
                     Main.S.ShipDestroyed(this);

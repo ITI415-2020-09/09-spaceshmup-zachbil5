@@ -13,7 +13,8 @@ public enum WeaponType
     phaser, // Shots that move in waves [NI]
     missile, // Homing missiles [NI]
     laser, // Damage over time [NI]
-    shield // Raise shieldLevel
+    shield, // Raise shieldLevel
+    enemyBlaster
 }
 // The WeaponDefinition class allows you to set the properties
 // of a specific weapon in the Inspector. Main has an array
@@ -43,14 +44,19 @@ public class Weapon : MonoBehaviour
     private WeaponType _type = WeaponType.none;
     public WeaponDefinition def;
     public GameObject collar;
+    //private bool isEnemy;
     public float lastShot; // Time last shot was fired
     void Awake()
     {
+        
         collar = transform.Find("Collar").gameObject;
+       
+        
     }
 
     void Start()
     {
+        
         
         // Call SetType() properly for the default _type
         SetType(_type);
@@ -61,9 +67,13 @@ public class Weapon : MonoBehaviour
         }
         // Find the fireDelegate of the parent
         GameObject parentGO = transform.parent.gameObject;
-        if (parentGO.tag == "Hero")
+        if (transform.parent.tag == "Hero")
         {
             Hero.S.fireDelegate += Fire;
+        }
+        if (transform.parent.tag == "Enemy")
+        {
+            Enemy_3.S.fireDelegate += Fire;
         }
     }
     public WeaponType type
@@ -84,6 +94,7 @@ public class Weapon : MonoBehaviour
             this.gameObject.SetActive(true);
         }
         def = Main.GetWeaponDefinition(_type);
+        if(transform.parent.tag == "Hero")
         collar.GetComponent<Renderer>().material.color = def.color;
         lastShot = 0; // You can always fire immediately after _type is set.
     }
@@ -96,12 +107,18 @@ public class Weapon : MonoBehaviour
         {
             return;
         }
+
         Projectile p;
+        
         switch (type)
         {
             case WeaponType.blaster:
                 p = MakeProjectile();
                 p.GetComponent<Rigidbody>().velocity = Vector3.up * def.velocity;
+                break;
+            case WeaponType.enemyBlaster:
+                p = MakeProjectile();
+                p.GetComponent<Rigidbody>().velocity = Vector3.up * def.velocity *-1;
                 break;
             case WeaponType.spread:
                 p = MakeProjectile();
@@ -110,6 +127,10 @@ public class Weapon : MonoBehaviour
                 p.GetComponent<Rigidbody>().velocity = new Vector3(-.2f, 0.9f, 0) * def.velocity;
                 p = MakeProjectile();
                 p.GetComponent<Rigidbody>().velocity = new Vector3(.2f, 0.9f, 0) * def.velocity;
+                p = MakeProjectile();
+                p.GetComponent<Rigidbody>().velocity = new Vector3(-.4f, 0.9f, 0) * def.velocity;
+                p = MakeProjectile();
+                p.GetComponent<Rigidbody>().velocity = new Vector3(.4f, 0.9f, 0) * def.velocity;
                 break;
         }
     }
